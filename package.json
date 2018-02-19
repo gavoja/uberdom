@@ -1,0 +1,21 @@
+{
+  "name": "uberdom",
+  "version": "0.0.1",
+  "description": "A set of simple DOM extensions make life easier in the post-jQuery era.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gavoja/uberdom.git"
+  },
+  "keywords": [
+    "uber",
+    "dom",
+    "jquery"
+  ],
+  "author": "Michal Kochel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gavoja/uberdom/issues"
+  },
+  "homepage": "https://github.com/gavoja/uberdom#readme"
+}
