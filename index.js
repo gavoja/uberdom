@@ -3,8 +3,10 @@
 require('./lib/closest.js')
 
 const dataset = require('./lib/polyfills/dataset.js')
-const Cookies = require('./lib/cookies.js')
+const cookies = require('./lib/cookies.js').getInstance()
+const storage = require('./lib/cookies.js').getInstance()
 const pack = require('./package.json')
+const ajax = require('./lib/ajax.js')
 
 // Empty element.
 const EMPTY = document.createElement('empty')
@@ -100,47 +102,95 @@ const off = function (eventName, listener) {
   return this
 }
 
-const newEvent = function (name) {
+const event = function (name) {
   const event = document.createEvent('Event')
   event.initEvent(name, true, true)
   return event
 }
 
 const trigger = function (name, args) {
-  const event = newEvent(name)
+  const ev = event(name)
   args && Object.keys(args).forEach(key => {
-    event[key] = args[key]
+    ev[key] = args[key]
   })
-  this.dispatchEvent(event)
+  this.dispatchEvent(ev)
+}
+
+const create = function (htmlString) {
+  const div = document.createElement('div')
+  div.innerHTML = htmlString.trim()
+
+  const kids = div.kids()
+
+  return kids.length === 1 ? kids[0] : kids
+}
+
+const next = function () {
+  return this.nextElementSibling || EMPTY
+}
+
+const prev = function () {
+  return this.previousElementSibling || EMPTY
+}
+
+const addTo = function (el) {
+  el.appendChild(this)
+}
+
+const addAfter = function (el) {
+  if (el.next().isEmpty) {
+    return this.addTo(el.dad())
+  }
+
+  this.addBefore(el.next())
+}
+
+const addBefore = function (el) {
+  el.dad().insertBefore(this, el)
 }
 
 //
 // Initialization.
 //
 
-if (!window.udom) {
-  window.udom = {
-    version: pack.version,
-    cookies: new Cookies()
-  }
+if (!window.u) {
+  const p = window.Element.prototype
 
-  window.Element.prototype.find = find
-  window.Element.prototype.find1 = find1
-  window.Element.prototype.dad = dad
-  window.Element.prototype.kids = kids
-  window.Element.prototype.on = on
-  window.Element.prototype.off = off
-  window.Element.prototype.index = index
-  window.Element.prototype.data = data
-  window.Element.prototype.trigger = trigger
-  window.Element.prototype.inDom = inDom
-  window.Element.prototype.del = del
+  p.find = find
+  p.find1 = find1
+  p.dad = dad
+  p.kids = kids
+  p.on = on
+  p.off = off
+  p.index = index
+  p.data = data
+  p.trigger = trigger
+  p.inDom = inDom
+  p.del = del
+  p.next = next
+  p.prev = prev
+  p.addTo = addTo
+  p.addAfter = addAfter
+  p.addBefore = addBefore
+
   window.document.find1 = find1
   window.document.find = find
   window.document.on = on
   window.document.off = off
 
-  window.newEvent = newEvent
   window.on = on
   window.off = off
+
+  window.u = {
+    version: pack.version,
+    cookies,
+    storage,
+    ajax,
+    create,
+    event,
+    find: selector => document.find(selector),
+    find1: selector => document.find1(selector)
+  }
 }
+
+module.exports = window.udom

@@ -2,28 +2,35 @@
 
 ## Introduction
 
-A set of simple DOM extensions make life easier in the post-jQuery era.
+A set of simple DOM extensions make life easier in the post-jQuery era. Fast, small and supports IE11+.
 
-Features:
-* fast,
-* small,
-* supports IE11+.
-
-## API
+## API reference
 
 ### Manipulation
 
-* `document.find(selector)`
+* `u.find(selector)` and `document.find(selector)`
 
-  Similar to `document.querySelectorAll()`, however returns a plain list so that all labdas work (i.e. `forEach`, `map`, `filter`, etc).
+  Like `document.querySelectorAll()`, but returns a plain list so all lambdas work (i.e. `forEach`, `map`, `filter`, etc).
 
-* `document.find1 (selector)`
+* `Element.find(selector)`
 
-  Similar to `document.querySelector` however returns an `<empty>` element if nothing found to avoid unnecessary null checks.
+  Like `Element.querySelectorAll()`, but returns a plain list so all lambdas work (i.e. `forEach`, `map`, `filter`, etc).
+
+* `u.find1(selector)` and alias of `document.find1(selector)`
+
+  Like `document.querySelector()`, but returns an `<empty>` element if nothing found to avoid unnecessary null checks.
+
+* `Element.find1(selector)`
+
+  Like `Element.querySelector()`, but returns an `<empty>` element if nothing found to avoid unnecessary null checks.
 
 * `Element.dad()`
 
-  Returns parent element or `<empty>` element.
+  Returns parent element or `<empty>` if no parent found.
+
+* `Element.closest(selector)`
+
+  Polyfill for the [standard functionality](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest) to give IE11 some love.
 
 * `Element.kids()`
 
@@ -35,11 +42,23 @@ Features:
 
 * `Element.del()`
 
-  Removed element.
+  Removes element.
 
-* `Element.inDom ()`
+* `Element.inDom()`
 
   Returns `true` if element is in DOM.
+
+* `Element.addTo(el)`
+
+  TODO
+
+* `Element.addAfter(el)`
+
+  TODO
+
+* `Element.addBefore(el)`
+
+  TODO
 
 * `Element.data(name)`
 
@@ -48,6 +67,10 @@ Features:
 * `Element.data(name, value)`
 
   Sets the data attribute. Note that attributes are strings only; for objects `JSON.stringify()` should be used.
+
+* `u.create(htmlString)`
+
+  Creates element from string.
 
 ### Events
 
@@ -59,23 +82,29 @@ Features:
 
   Removes event listener.
 
-* `window.newEvent (eventName)`
-
-  Creates new event.
-
 * `Element.trigger (eventName, args)`
 
   Triggers an event on element passing arguments.
 
+* `u.event (eventName)`
+
+  Creates new event.
+
 ### Cookies
 
-* `udom.cookies.get (name)`
+* `u.cookies.get (name)`
 
-* `udom.cookies.set (name, value, time)`
+* `u.cookies.set (name, value, time)`
 
-* `udom.cookies.del (name)`
+* `u.cookies.del (name)`
 
-* `udom.cookies.has (name)`
+* `u.cookies.has (name)`
+
+### Ajax
+
+* `u.ajax (url, callback)`
+
+* `u.ajax (args, callback)`
 
 ## Examples
 
@@ -83,6 +112,28 @@ Features:
 
 WIP
 
+### Creating an element
+
+WIP
+
+### Creating multiple elements
+
+WIP
+
 ### Event handling on dynamically added elements
+
+WIP
+
+### AJAX GET call
+
+```
+u.ajax('http://foo', (err, req) => {
+  if (!err) {
+    console.log(req.json())
+  }
+})
+```
+
+### AJAX POST call
 
 WIP
