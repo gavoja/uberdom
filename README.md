@@ -8,81 +8,73 @@ A set of simple DOM extensions make life easier in the post-jQuery era. Fast, sm
 
 ### Manipulation
 
-* `u.find(selector)` and `document.find(selector)`
+* `u.find(selector)` and `el.find(selector)`
 
-  Like `document.querySelectorAll()`, but returns a plain list so all lambdas work (i.e. `forEach`, `map`, `filter`, etc).
+  Similar to `querySelectorAll()`. Returns a plain list of extended elements so all lambdas work (i.e. `forEach`, `map`, `filter`, etc).
 
-* `Element.find(selector)`
+* `u.find1(selector)` and `el.find(selector)`
 
-  Like `Element.querySelectorAll()`, but returns a plain list so all lambdas work (i.e. `forEach`, `map`, `filter`, etc).
+  Similar to `Element.querySelector()`. Returns an extended element or `<empty>` element if nothing found to avoid unnecessary null checks.
 
-* `u.find1(selector)` and alias of `document.find1(selector)`
+* `el.dad()`
 
-  Like `document.querySelector()`, but returns an `<empty>` element if nothing found to avoid unnecessary null checks.
+  Returns extended parent element or `<empty>` if no parent found.
 
-* `Element.find1(selector)`
+* `el.dad(selector)`
 
-  Like `Element.querySelector()`, but returns an `<empty>` element if nothing found to avoid unnecessary null checks.
+  Similar to `Element.closest(selector)`. Returns extended element.
 
-* `Element.dad()`
+* `el.kids()`
 
-  Returns parent element or `<empty>` if no parent found.
+  Returns plain list of child extended elements.
 
-* `Element.closest(selector)`
-
-  Polyfill for the [standard functionality](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest) to give IE11 some love.
-
-* `Element.kids()`
-
-  Returns plain list of child elements.
-
-* `Element.index()`
+* `el.index()`
 
   Returns index of the current element.
 
-* `Element.del()`
+* `el.del()`
 
   Removes element.
 
-* `Element.inDom()`
+* `el.inDom()`
 
   Returns `true` if element is in DOM.
 
-* `Element.addTo(el)`
+* `el.addTo(el)`
 
   TODO
 
-* `Element.addAfter(el)`
+* `el.addAfter(el)`
 
   TODO
 
-* `Element.addBefore(el)`
+* `el.addBefore(el)`
 
   TODO
 
-* `Element.data(name)`
+* `el.data(name)`
 
   Returns the value of the data attibute. The name uses camelCase notation, which translates to a hyphen-separated attribute name (i.e. `el.data('fooBar') will return the value of `data-foo-bar` attribute). Numeric and boolean strings are converted to the appropriate JavaScript primitives.
 
-* `Element.data(name, value)`
+* `el.data(name, value)`
 
   Sets the data attribute. Note that attributes are strings only; for objects `JSON.stringify()` should be used.
 
 * `u.create(htmlString)`
 
-  Creates element from string.
+  Creates extended element or list of extended elements from string.
 
 ### Events
 
-* `Element.on(eventName [, selector],  listener)`
+* `el.on(eventName [, selector],  listener)`
 
   Binds event listener - sort of like `Element.addEventListener(eventName, listener, true)`. An optional selector will filter the descendants of the selected element that trigger the event. If the selector omitted, the event is always triggered when it reaches the selected element.
 
-* `Element.off (eventName, listener)`
+* `el.off (eventName, listener)`
 
   Removes event listener.
 
-* `Element.trigger (eventName, args)`
+* `el.trigger (eventName, args)`
 
   Triggers an event on element passing arguments.
 

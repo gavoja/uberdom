@@ -1,196 +1,201 @@
 'use strict'
 
-require('./lib/closest.js')
+require('./lib/polyfills/closest')
 
-const dataset = require('./lib/polyfills/dataset.js')
-const cookies = require('./lib/cookies.js').getInstance()
-const storage = require('./lib/cookies.js').getInstance()
+const dataset = require('./lib/polyfills/dataset')
+const cookies = require('./lib/cookies').getInstance()
+const storage = require('./lib/storage').getInstance()
 const pack = require('./package.json')
-const ajax = require('./lib/ajax.js')
+const ajax = require('./lib/ajax')
 
-// Empty element.
-const EMPTY = document.createElement('empty')
-EMPTY.isEmpty = true
-
-//
-// Manipulation.
-//
-
-const find = function (selector) {
-  return Array.prototype.slice.call(this.querySelectorAll(selector))
-}
-
-const find1 = function (selector) {
-  return this.querySelector(selector) || EMPTY
-}
-
-const kids = function () {
-  return Array.prototype.slice.call(this.children)
-}
-
-const dad = function () {
-  return this.parentElement || EMPTY
-}
-
-const index = function () {
-  return this.dad().kids().indexOf(this)
-}
-
-const inDom = function () {
-  return window.document.body.contains(this)
-}
-
-const del = function () {
-  this.dad().removeChild(this)
-}
-
-const data = function (key, value) {
-  if (!key) {
-    // Always return a copy
-    return JSON.parse(JSON.stringify(dataset(this)))
+function init () {
+  if (window.u) {
+    return window.u
   }
 
-  // Set the value
-  if (value !== undefined) {
-    dataset(this)[key] = value
-    return
+  //
+  // Declarations.
+  //
+
+  var u
+  var ext = {}
+
+  //
+  // Definition of extensions.
+  //
+
+  ext.find = function (selector) {
+    return Array.prototype.slice.call(this.querySelectorAll(selector)).map(el => u(el))
   }
 
-  // Convert boolean and numeric values
-  let result = dataset(this)[key]
-  let isNumericOrBoolean = result && (result === 'true' || result === 'false' || !isNaN(result))
-  return isNumericOrBoolean ? JSON.parse(result) : result
-}
+  ext.find1 = function (selector) {
+    return u(this.querySelector(selector) || u._empty)
+  }
 
-//
-// Events
-//
+  ext.kids = function () {
+    return Array.prototype.slice.call(this.children).map(el => u(el))
+  }
 
-const getTarget = function (event, sel) {
-  let t = event.target
-  while (t !== event.currentTarget) {
-    if (t.matches(sel)) {
-      return t
+  ext.dad = function (selector) {
+    var result = selector ? this.closest(selector) : this.parentElement
+    return u(result || u._empty)
+  }
+
+  ext.next = function () {
+    return u(this.nextElementSibling || u._empty)
+  }
+
+  ext.prev = function () {
+    return u(this.previousElementSibling || u._empty)
+  }
+
+  ext.index = function () {
+    return this.dad().kids().indexOf(this)
+  }
+
+  ext.data = function (key, value) {
+    if (!key) {
+      // Always return a copy
+      return JSON.parse(JSON.stringify(dataset(this)))
     }
 
-    t = t.parentElement
+    // Set the value
+    if (value !== undefined) {
+      dataset(this)[key] = value
+      return
+    }
+
+    // Convert boolean and numeric values
+    var result = dataset(this)[key]
+    var isNumericOrBoolean = result && (result === 'true' || result === 'false' || !isNaN(result))
+    return isNumericOrBoolean ? JSON.parse(result) : result
   }
 
-  return null
-}
+  ext.addTo = function (el) {
+    return u(el.appendChild(this))
+  }
 
-const on = function (eventName, arg1, arg2) {
-  const selector = typeof arg1 === 'string' ? arg1 : null
-  const listener = arg2 || arg1
+  ext.addAfter = function (el) {
+    el = u(el)
+    if (el.next().isEmpty) {
+      return this.addTo(el.dad())
+    }
 
-  if (!selector) {
-    this.addEventListener(eventName, listener, true)
+    return this.addBefore(el.next())
+  }
+
+  ext.addBefore = function (el) {
+    el = u(el)
+    return u(el.dad().insertBefore(this, el))
+  }
+
+  ext.empty = function () {
+    while (this.firstChild) {
+      this.removeChild(this.firstChild)
+    }
+  }
+
+  ext.del = function () {
+    this.dad().removeChild(this)
+  }
+
+  ext.on = function (eventName, arg1, arg2) {
+    var selector = typeof arg1 === 'string' ? arg1 : null
+    var listener = arg2 || arg1
+
+    if (!selector) {
+      this.addEventListener(eventName, event => listener(u._wrapEventTargets(event)), true)
+      return this
+    }
+
+    // In this case it is not possible to remove the listener.
+    this.addEventListener(eventName, (event) => {
+      var target = u._getTarget(event, selector)
+      target && listener(u._wrapEventTargets(event), target)
+    }, true)
+
     return this
   }
 
-  // In this case it is not possible to remove the listener.
-  this.addEventListener(eventName, (event) => {
-    const target = getTarget(event, selector)
-    target && listener(event, target)
-  }, true)
-
-  return this
-}
-
-const off = function (eventName, listener) {
-  this.removeEventListener(eventName, listener, true)
-  return this
-}
-
-const event = function (name) {
-  const event = document.createEvent('Event')
-  event.initEvent(name, true, true)
-  return event
-}
-
-const trigger = function (name, args) {
-  const ev = event(name)
-  args && Object.keys(args).forEach(key => {
-    ev[key] = args[key]
-  })
-  this.dispatchEvent(ev)
-}
-
-const create = function (htmlString) {
-  const div = document.createElement('div')
-  div.innerHTML = htmlString.trim()
-
-  const kids = div.kids()
-
-  return kids.length === 1 ? kids[0] : kids
-}
-
-const next = function () {
-  return this.nextElementSibling || EMPTY
-}
-
-const prev = function () {
-  return this.previousElementSibling || EMPTY
-}
-
-const addTo = function (el) {
-  el.appendChild(this)
-}
-
-const addAfter = function (el) {
-  if (el.next().isEmpty) {
-    return this.addTo(el.dad())
+  ext.off = function (eventName, listener) {
+    this.removeEventListener(eventName, listener, true)
+    return this
   }
 
-  this.addBefore(el.next())
-}
-
-const addBefore = function (el) {
-  el.dad().insertBefore(this, el)
-}
-
-//
-// Initialization.
-//
-
-if (!window.u) {
-  const p = window.Element.prototype
-
-  p.find = find
-  p.find1 = find1
-  p.dad = dad
-  p.kids = kids
-  p.on = on
-  p.off = off
-  p.index = index
-  p.data = data
-  p.trigger = trigger
-  p.inDom = inDom
-  p.del = del
-  p.next = next
-  p.prev = prev
-  p.addTo = addTo
-  p.addAfter = addAfter
-  p.addBefore = addBefore
-
-  window.document.find1 = find1
-  window.document.find = find
-  window.document.on = on
-  window.document.off = off
-
-  window.on = on
-  window.off = off
-
-  window.u = {
-    version: pack.version,
-    cookies,
-    storage,
-    ajax,
-    create,
-    event,
-    find: selector => document.find(selector),
-    find1: selector => document.find1(selector)
+  ext.trigger = function (name, args) {
+    var ev = u.newEvent(name)
+    args && Object.keys(args).forEach(key => {
+      ev[key] = args[key]
+    })
+    this.dispatchEvent(ev)
   }
+
+  //
+  // Definition of u object.
+  //
+
+  u = function (el) {
+    Object.getOwnPropertyNames(ext).forEach(methodName => {
+      el[methodName] = ext[methodName].bind(el)
+    })
+
+    return el
+  }
+
+  Object.defineProperty(u, 'wnd', { get () { return u(window) } })
+  Object.defineProperty(u, 'doc', { get () { return u(window.document) } })
+  Object.defineProperty(u, 'html', { get () { return u(window.document.documentElement) } })
+
+  u.version = pack.version
+  u.loc = window.location
+  u.cookies = cookies
+  u.storage = storage
+  u.ajax = ajax
+  u.find = u.doc.find
+  u.find1 = u.doc.find1
+  u._empty = document.createElement('empty')
+  u._empty.isEmpty = true
+  u._ext = ext
+
+  u.newEvent = function (name) {
+    var event = document.createEvent('Event')
+    event.initEvent(name, true, true)
+    return event
+  }
+
+  u.create = function (htmlString) {
+    var div = u(document.createElement('div'))
+    div.innerHTML = htmlString.trim()
+    var kids = div.kids()
+    return kids.length === 1 ? kids[0] : kids
+  }
+
+  u._getTarget = function (event, sel) {
+    var t = event.target
+    while (t !== event.currentTarget) {
+      if (t.matches(sel)) {
+        return u(t)
+      }
+
+      t = t.parentElement
+    }
+
+    return null
+  }
+
+  u._wrapEventTargets = function (event) {
+    event.currentTarget && u(event.currentTarget)
+    event.target && u(event.target)
+    event.relatedTarget && u(event.relatedTarget)
+    return event
+  }
+
+  //
+  // Return value.
+  //
+
+  window.u = u
+  return window.u
 }
 
-module.exports = window.udom
+module.exports = init()
