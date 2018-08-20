@@ -175,6 +175,16 @@ class Test {
       return u.storage.get('obj')
     }), null)
   }
+
+  async 'query string' () {
+    assert.deepStrictEqual(await this.page.evaluate(() => {
+      return u.querystring.parse('foo=abc&foo=123&foo=false&bar=xyz%26&baz')
+    }), {foo: ['abc', 123, false], bar: 'xyz&', baz: true})
+
+    assert.equal(await this.page.evaluate(() => {
+      return u.querystring.stringify({foo: ['abc', 123, false], bar: 'xyz&', baz: true})
+    }), 'foo=abc&foo=123&foo=false&bar=xyz%26&baz')
+  }
 }
 
 (new Test())._run()

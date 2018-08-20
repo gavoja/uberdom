@@ -3,8 +3,9 @@
 require('./lib/polyfills/closest')
 
 const dataset = require('./lib/polyfills/dataset')
-const cookies = require('./lib/cookies').getInstance()
-const storage = require('./lib/storage').getInstance()
+const Cookies = require('./lib/cookies')
+const Storage = require('./lib/storage')
+const QueryString = require('./lib/querystring')
 const pack = require('./package.json')
 const ajax = require('./lib/ajax')
 
@@ -148,8 +149,9 @@ function init () {
 
   u.version = pack.version
   u.loc = window.location
-  u.cookies = cookies
-  u.storage = storage
+  u.cookies = new Cookies()
+  u.storage = new Storage()
+  u.querystring = new QueryString()
   u.ajax = ajax
   u.find = u.doc.find
   u.find1 = u.doc.find1
