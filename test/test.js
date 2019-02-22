@@ -1,37 +1,13 @@
-/* global u, test */
+/* global u */
 'use strict'
 
 const puppeteer = require('puppeteer')
 const assert = require('assert')
+const test = require('triala')
 
-// process.on('unhandledRejection', reason => console.error(reason))
-// const MINUTE = 1000 * 60
-
-class Test {
-  // Minimal test runner.
-  async _run () {
-    this._beforeAll && await this._beforeAll()
-    for (let name of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
-      this._before && await this._before()
-
-      if (name !== 'constructor' && !name.startsWith('_')) {
-        console.log('Testing:', name)
-        try {
-          await this[name]()
-        } catch (err) {
-          console.error(`Error in test: ${name}`)
-          console.error(err)
-        }
-      }
-
-      this._after && await this._after()
-    }
-    this._afterAll && await this._afterAll()
-  }
-
-  async _beforeAll () {
-    // const browser = await puppeteer.launch({headless: false})
-    const browser = await puppeteer.launch()
+test('uberdom', class {
+  async _before () {
+    const browser = await puppeteer.launch({ headless: true })
     this.page = await browser.newPage()
     await this.page.goto('http://localhost:8000')
     await this.page.evaluate(() => {
@@ -39,11 +15,7 @@ class Test {
     })
   }
 
-  async _afterAll () {
-    process.exit(0)
-  }
-
-  async _before () {
+  async _beforeEach () {
     return this.page.evaluate(() => (window.test = {}))
   }
 
@@ -185,6 +157,4 @@ class Test {
       return u.querystring.stringify({foo: ['abc', 123, false], bar: 'xyz&', baz: true})
     }), 'foo=abc&foo=123&foo=false&bar=xyz%26&baz')
   }
-}
-
-(new Test())._run()
+})
