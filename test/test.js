@@ -20,33 +20,33 @@ test('uberdom', class {
   }
 
   async 'selecting elements' () {
-    assert.equal(await this.page.evaluate(() => u.find('a').length), 3)
-    assert.equal(await this.page.evaluate(() => u.find1('a').id), 'link1')
-    assert.equal(await this.page.evaluate(() => u.find1('ul').find1('li').find1('a').id), 'link1')
+    assert.strictEqual(await this.page.evaluate(() => u.find('a').length), 3)
+    assert.strictEqual(await this.page.evaluate(() => u.find1('a').id), 'link1')
+    assert.strictEqual(await this.page.evaluate(() => u.find1('ul').find1('li').find1('a').id), 'link1')
   }
 
   async 'non existent elements' () {
-    assert.equal(await this.page.evaluate(() => u.find('none').length), 0)
-    assert.equal(await this.page.evaluate(() => u.find1('none').id), '')
-    assert.equal(await this.page.evaluate(() => u.find1('none').isEmpty), true)
-    assert.equal(await this.page.evaluate(() => u.find1('none').find1('anothernone').isEmpty), true)
+    assert.strictEqual(await this.page.evaluate(() => u.find('none').length), 0)
+    assert.strictEqual(await this.page.evaluate(() => u.find1('none').id), '')
+    assert.strictEqual(await this.page.evaluate(() => u.find1('none').isEmpty), true)
+    assert.strictEqual(await this.page.evaluate(() => u.find1('none').find1('anothernone').isEmpty), true)
   }
 
   async 'kids and dad' () {
-    assert.equal(await this.page.evaluate(() => u.find1('ul').kids().length), 3)
-    assert.equal(await this.page.evaluate(() => u.find1('li').dad().tagName), 'UL')
-    assert.equal(await this.page.evaluate(() => u.find1('a').dad('ul').tagName), 'UL')
-    assert.equal(await this.page.evaluate(() => u.find1('a').dad('none').isEmpty), true)
+    assert.strictEqual(await this.page.evaluate(() => u.find1('ul').kids().length), 3)
+    assert.strictEqual(await this.page.evaluate(() => u.find1('li').dad().tagName), 'UL')
+    assert.strictEqual(await this.page.evaluate(() => u.find1('a').dad('ul').tagName), 'UL')
+    assert.strictEqual(await this.page.evaluate(() => u.find1('a').dad('none').isEmpty), true)
   }
 
   async 'next and prev' () {
-    assert.equal(await this.page.evaluate(() => u.find1('li').next().kids().shift().id), 'link2')
-    assert.equal(await this.page.evaluate(() => u.find1('li').next().prev().kids().shift().id), 'link1')
-    assert.equal(await this.page.evaluate(() => u.find1('li').next().next().index()), 2)
+    assert.strictEqual(await this.page.evaluate(() => u.find1('li').next().kids().shift().id), 'link2')
+    assert.strictEqual(await this.page.evaluate(() => u.find1('li').next().prev().kids().shift().id), 'link1')
+    assert.strictEqual(await this.page.evaluate(() => u.find1('li').next().next().index()), 2)
   }
 
   async 'creating and deleting elements' () {
-    assert.equal(await this.page.evaluate(() => {
+    assert.strictEqual(await this.page.evaluate(() => {
       u.create(`
         <ul>
           <li><a id="link40" href="#link40">Link 40</a></li>
@@ -59,12 +59,12 @@ test('uberdom', class {
       return u.find('#dynamic li').length
     }), 5)
 
-    assert.equal(await this.page.evaluate(() => {
+    assert.strictEqual(await this.page.evaluate(() => {
       u.find1('#link50').dad().del()
       return u.find('#dynamic li').length
     }), 4)
 
-    assert.equal(await this.page.evaluate(() => {
+    assert.strictEqual(await this.page.evaluate(() => {
       u.find1('#dynamic').empty()
       return u.find('#dynamic li').length
     }), 0)
@@ -82,7 +82,7 @@ test('uberdom', class {
 
     // Trigger click.
     await this.page.click('#link1')
-    assert.equal(await this.page.evaluate(() => test.result), 'link1')
+    assert.strictEqual(await this.page.evaluate(() => test.result), 'link1')
 
     // Unbind event listener.
     await this.page.evaluate(() => {
@@ -92,11 +92,11 @@ test('uberdom', class {
 
     // Trigger click.
     await this.page.click('#link1')
-    assert.equal(await this.page.evaluate(() => window.result), undefined)
+    assert.strictEqual(await this.page.evaluate(() => window.result), undefined)
   }
 
   async 'custom event' () {
-    assert.equal(await this.page.evaluate(() => {
+    assert.strictEqual(await this.page.evaluate(() => {
       test.handler = event => {
         test.result = 'custom'
       }
@@ -135,13 +135,13 @@ test('uberdom', class {
 
   async 'storage' () {
     await this.page.evaluate(() => {
-      u.storage.set('obj', {foo: 'bar'})
+      u.storage.set('obj', { foo: 'bar' })
     })
 
     await this.page.goto('http://example.com')
     await this.page.goto('http://localhost:8000')
 
-    assert.deepStrictEqual(await this.page.evaluate(() => u.storage.get('obj')), {foo: 'bar'})
+    assert.deepStrictEqual(await this.page.evaluate(() => u.storage.get('obj')), { foo: 'bar' })
     assert.deepStrictEqual(await this.page.evaluate(() => {
       u.storage.del('obj')
       return u.storage.get('obj')
@@ -151,10 +151,10 @@ test('uberdom', class {
   async 'query string' () {
     assert.deepStrictEqual(await this.page.evaluate(() => {
       return u.querystring.parse('foo=abc&foo=123&foo=false&bar=xyz%26&baz')
-    }), {foo: ['abc', 123, false], bar: 'xyz&', baz: true})
+    }), { foo: ['abc', 123, false], bar: 'xyz&', baz: true })
 
-    assert.equal(await this.page.evaluate(() => {
-      return u.querystring.stringify({foo: ['abc', 123, false], bar: 'xyz&', baz: true})
+    assert.strictEqual(await this.page.evaluate(() => {
+      return u.querystring.stringify({ foo: ['abc', 123, false], bar: 'xyz&', baz: true })
     }), 'foo=abc&foo=123&foo=false&bar=xyz%26&baz')
   }
 })

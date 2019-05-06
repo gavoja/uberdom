@@ -88,6 +88,7 @@ function uberdom () {
     window.document.find = u._ext.find
     window.document.on = u._ext.on
     window.document.off = u._ext.off
+    window.trigger = u._ext.trigger
     u.find = u._ext.find.bind(document)
     u.find1 = u._ext.find1.bind(document)
   }
