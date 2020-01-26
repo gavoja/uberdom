@@ -1,6 +1,6 @@
 {
   "name": "uberdom",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A set of simple DOM extensions make life easier in the post-jQuery era.",
   "main": "index.js",
   "repository": {

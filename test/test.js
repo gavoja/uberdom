@@ -20,7 +20,7 @@ test('uberdom', class {
   }
 
   async 'cookies' () {
-    const cookies = await this.page.evaluate(() => {
+    let cookies = await this.page.evaluate(() => {
       u.cookies.set('cookie1', 'value1')
       u.cookies.set('cookie2', 'value2', { expires: 1 * 60 * 60 * 1000 })
       u.cookies.set('cookie3', 'value2', { expires: 1 })
@@ -29,6 +29,13 @@ test('uberdom', class {
     })
 
     assert.strictEqual(cookies, 'cookie1=value1; cookie2=value2')
+
+    cookies = await this.page.evaluate(() => {
+      u.cookies.del('cookie1')
+      return document.cookie
+    })
+
+    assert.strictEqual(cookies, 'cookie2=value2')
   }
 
   async 'selecting elements' () {
