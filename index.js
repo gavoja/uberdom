@@ -2,9 +2,7 @@
 
 const Cookies = require('./lib/cookies')
 const Storage = require('./lib/storage')
-const QueryString = require('./lib/querystring')
 const pack = require('./package.json')
-const ajax = require('./lib/ajax')
 
 function uberdom () {
   if (window.u) {
@@ -20,8 +18,6 @@ function uberdom () {
   u.version = pack.version
   u.cookies = new Cookies()
   u.storage = new Storage()
-  u.querystring = new QueryString()
-  u.ajax = ajax
   u._empty = document.createElement('empty')
   u._empty.isEmpty = true
 

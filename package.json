@@ -1,6 +1,6 @@
 {
   "name": "uberdom",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A set of simple DOM extensions make life easier in the post-jQuery era.",
   "main": "index.js",
   "repository": {
@@ -19,14 +19,14 @@
   },
   "homepage": "https://github.com/gavoja/uberdom#readme",
   "devDependencies": {
-    "@babel/core": "^7.3.3",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
     "babelify": "^10.0.0",
-    "browserify": "^16.2.3",
-    "puppeteer": "^1.12.2",
-    "runna": "^2.3.3",
+    "browserify": "^16.5.0",
+    "puppeteer": "^1.20.0",
+    "runna": "^3.0.0",
     "runna-webserver": "^0.2.0",
-    "triala": "^0.2.1"
+    "triala": "^0.3.0"
   },
   "scripts": {
     "serve": "runna-webserver -w ./test/www",
@@ -35,7 +35,7 @@
     "test:puppeteer": "node ./test/test.js",
     "build:js": "browserify index.js -o test/www/uberdom.js -t [ babelify --presets [ @babel/preset-env ] ] --debug true",
     "dev": "runna [ +serve build:js ] -w",
-    "test": "runna [ +serve build:js - test:puppeteer - serve:stop ]"
+    "test": "runna [ +serve build:js - test:puppeteer - serve:stop ] -v"
   },
   "observe": {
     "build:js - serve:reload": [

@@ -19,6 +19,18 @@ test('uberdom', class {
     return this.page.evaluate(() => (window.test = {}))
   }
 
+  async 'cookies' () {
+    const cookies = await this.page.evaluate(() => {
+      u.cookies.set('cookie1', 'value1')
+      u.cookies.set('cookie2', 'value2', { expires: 1 * 60 * 60 * 1000 })
+      u.cookies.set('cookie3', 'value2', { expires: 1 })
+
+      return document.cookie
+    })
+
+    assert.strictEqual(cookies, 'cookie1=value1; cookie2=value2')
+  }
+
   async 'selecting elements' () {
     assert.strictEqual(await this.page.evaluate(() => u.find('a').length), 3)
     assert.strictEqual(await this.page.evaluate(() => u.find1('a').id), 'link1')
@@ -54,8 +66,8 @@ test('uberdom', class {
           <li><a id="link60" href="#link60">Link 60</a></li>
         </ul>
       `).addTo(u.find1('#dynamic'))
-      u.create(`<li><a id="link55" href="#link55">Link 55</a></li>`).addAfter(u.find1('#link50').dad())
-      u.create(`<li><a id="link45" href="#link45">Link 45</a></li>`).addBefore(u.find1('#link50').dad())
+      u.create('<li><a id="link55" href="#link55">Link 55</a></li>').addAfter(u.find1('#link50').dad())
+      u.create('<li><a id="link45" href="#link45">Link 45</a></li>').addBefore(u.find1('#link50').dad())
       return u.find('#dynamic li').length
     }), 5)
 
@@ -146,15 +158,5 @@ test('uberdom', class {
       u.storage.del('obj')
       return u.storage.get('obj')
     }), null)
-  }
-
-  async 'query string' () {
-    assert.deepStrictEqual(await this.page.evaluate(() => {
-      return u.querystring.parse('foo=abc&foo=123&foo=false&bar=xyz%26&baz')
-    }), { foo: ['abc', 123, false], bar: 'xyz&', baz: true })
-
-    assert.strictEqual(await this.page.evaluate(() => {
-      return u.querystring.stringify({ foo: ['abc', 123, false], bar: 'xyz&', baz: true })
-    }), 'foo=abc&foo=123&foo=false&bar=xyz%26&baz')
   }
 })
